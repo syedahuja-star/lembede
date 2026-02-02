@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Verification - Lembede College</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .verification-container {
+            background: white;
+            max-width: 800px;
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #c41e3a 0%, #8b0000 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .status-box {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .status-box h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .status-valid {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .status-invalid {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .status-loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+
+        .cert-details {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .cert-details h3 {
+            color: #c41e3a;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #c41e3a;
+            padding-bottom: 10px;
+        }
+
+        .detail-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            width: 200px;
+            color: #495057;
+            flex-shrink: 0;
+        }
+
+        .detail-value {
+            color: #212529;
+            flex-grow: 1;
+        }
+
+        .verification-badge {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 3px solid #28a745;
+        }
+
+        .verification-badge img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 10px;
+        }
+
+        .verification-badge p {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .qcto-logo {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .qcto-logo p {
+            color: #666;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #6c757d;
+            font-size: 12px;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #c41e3a;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .detail-row {
+                flex-direction: column;
+            }
+            
+            .detail-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container">
+        <div class="header">
+            <h1>🎓 Certificate Verification</h1>
+            <p>Lembede College - QCTO Accredited</p>
+        </div>
+
+        <div class="content">
+            <div id="result"></div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 Lembede College. All rights reserved.</p>
+            <p>This verification system is secured and authenticated by QCTO</p>
+        </div>
+    </div>
+
+    <script>
+        // Get the code from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        
+        // Certificate database
+        // In production, this should be fetched from a secure server/database
+        const certificates = {
+            'Q16202366': {
+                name: 'MLAMLELI NONGXA',
+                idNumber: '8809085431084',
+                qualification: 'Home Based Personal Care Assistant',
+                qualCode: '671101 - Personal Care Assistant',
+                certNumber: '12/123514',
+                tradeTestDate: '2018-08-21',
+                dateIssued: '2019-02-26',
+                status: 'Valid',
+                qctoNumber: 'Q 16202366',
+                authority: 'Quality Council for Trades and Occupations (QCTO)',
+                institution: 'Lembede College'
+            },
+            // Add more certificates here as needed
+            // 'Q16202367': { ... },
+        };
+        
+        const resultDiv = document.getElementById('result');
+        
+        // Show loading state
+        resultDiv.innerHTML = `
+            <div class="status-box status-loading">
+                <div class="loader"></div>
+                <h2>Verifying Certificate...</h2>
+                <p>Please wait while we verify the certificate authenticity.</p>
+            </div>
+        `;
+        
+        // Simulate loading delay (remove in production or when using real API)
+        setTimeout(() => {
+            if (!code) {
+                resultDiv.innerHTML = `
+                    <div class="status-box status-invalid">
+                        <div class="icon">❌</div>
+                        <h2>No Certificate Code Provided</h2>
+                        <p>Please scan a valid QR code or provide a certificate code.</p>
+                    </div>
+                `;
+            } else if (certificates[code]) {
+                const cert = certificates[code];
+                resultDiv.innerHTML = `
+                    <div class="status-box status-valid">
+                        <div class="icon">✅</div>
+                        <h2>Certificate Verified Successfully</h2>
+                        <p>This is an authentic and valid certificate issued by ${cert.institution}.</p>
+                    </div>
+                    
+                    <div class="cert-details">
+                        <h3>Certificate Details</h3>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Certificate Code:</span>
+                            <span class="detail-value"><strong>${code}</strong></span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Full Name:</span>
+                            <span class="detail-value">${cert.name}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">ID Number:</span>
+                            <span class="detail-value">${cert.idNumber}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Qualification:</span>
+                            <span class="detail-value">${cert.qualification}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Qualification Code:</span>
+                            <span class="detail-value">${cert.qualCode}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Certificate Number:</span>
+                            <span class="detail-value">${cert.certNumber}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Trade Test Date:</span>
+                            <span class="detail-value">${cert.tradeTestDate}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Date Issued:</span>
+                            <span class="detail-value">${cert.dateIssued}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value"><strong style="color: #28a745;">${cert.status}</strong></span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Issuing Institution:</span>
+                            <span class="detail-value">${cert.institution}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Accrediting Authority:</span>
+                            <span class="detail-value">${cert.authority}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">QCTO Number:</span>
+                            <span class="detail-value">${cert.qctoNumber}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="verification-badge">
+                        <div class="icon" style="color: #28a745;">🛡️</div>
+                        <p>OFFICIALLY VERIFIED</p>
+                        <p style="color: #666; font-size: 12px; margin-top: 10px;">
+                            This certificate has been verified against QCTO records<br>
+                            Verification Date: ${new Date().toLocaleDateString()}
+                        </p>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="status-box status-invalid">
+                        <div class="icon">❌</div>
+                        <h2>Certificate Not Found</h2>
+                        <p>Certificate code <strong>${code}</strong> is not valid or does not exist in our records.</p>
+                        <p style="margin-top: 15px; font-size: 14px;">
+                            This could mean:
+                            <ul style="text-align: left; margin: 10px auto; max-width: 400px;">
+                                <li>The certificate code is incorrect</li>
+                                <li>The certificate has been revoked</li>
+                                <li>The certificate was not issued by Lembede College</li>
+                            </ul>
+                        </p>
+                        <p style="margin-top: 15px; font-size: 13px;">
+                            For assistance, please contact Lembede College directly.
+                        </p>
+                    </div>
+                `;
+            }
+        }, 1500); // 1.5 second delay for loading effect
+    </script>
+</body>
+</html>
